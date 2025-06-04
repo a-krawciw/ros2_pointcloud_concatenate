@@ -91,7 +91,7 @@ void PointcloudConcatenate::update()
     return;
   }
 
-  if ((!cloud_in1_received_) && (!cloud_in2_received_) && (!cloud_in3_received) && (!cloud_in4_received))
+  if ((!cloud_in1_received_) && (!cloud_in2_received_) && (!cloud_in3_received_) && (!cloud_in4_received_))
   {
     RCLCPP_WARN(this->get_logger(), "No pointclouds received yet. Sleeping 1s...");
     return;
