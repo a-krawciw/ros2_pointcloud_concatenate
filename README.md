@@ -31,7 +31,7 @@ rosdep install --from-paths src --ignore-src -r -y
 This node is intended to be included as a part of a larger launch file.
 And example launch file is provided.
 
-* `pointcloud_concatanate.launch.py`  
+* `pointcloud_concatenate.launch.py`  
   A sample launch file which highlights the necessary parameters and topics.  
   Launches a node which subscribes to 2 pointclouds, concatenates them and publishes the
   concatenated pointcloud in frame `base_link` at a frequency of 10 Hz.
