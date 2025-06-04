@@ -1,30 +1,31 @@
-#pragma once           // Only include once per compile
-#ifndef POINTCLOUD_CONCATENATE  // Conditional compiling
-#define POINTCLOUD_CONCATENATE
+#pragma once                       // Only include once per compile
+#ifndef POINTCLOUD_CONCATENATE_HPP // Conditional compiling
+#define POINTCLOUD_CONCATENATE_HPP
 
 // Includes
-#include <ros/ros.h>  // ROS header
+#include <rclcpp/rclcpp.hpp> // ROS header
 
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 
-#include <pcl_ros/point_cloud.h>
-#include <pcl_ros/transforms.h>
+#include <pcl_ros/transforms.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 // Macro to warn about unset parameters
-#define ROSPARAM_WARN(param_name, default_val)                               \
-  std::cout << "\033[33m"                                                    \
-            << "[WARN] Param is not set: " << param_name                          \
-            << ". Setting to default value: " << default_val << "\033[0m\n"  \
+#define PARAM_WARN(param_name, default_val)                                 \
+  std::cout << "\033[33m"                                                   \
+            << "[WARN] Param is not set: " << param_name                    \
+            << ". Setting to default value: " << default_val << "\033[0m\n" \
             << std::endl
 
 // Define class
-class PointcloudConcatenate {
+class PointcloudConcatenate : public rclcpp::Node
+{
 public:
   // Constructor and destructor
-  PointcloudConcatenate(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+  PointcloudConcatenate();
   ~PointcloudConcatenate();
 
   // Public functions
@@ -33,50 +34,39 @@ public:
   double getHz();
 
   // Public variables and objects
-  
+
 private:
-  // Private functions
-  void subCallbackCloudIn1(sensor_msgs::PointCloud2 msg);
-  void subCallbackCloudIn2(sensor_msgs::PointCloud2 msg);
-  void subCallbackCloudIn3(sensor_msgs::PointCloud2 msg);
-  void subCallbackCloudIn4(sensor_msgs::PointCloud2 msg);
-  void publishPointcloud(sensor_msgs::PointCloud2 cloud);
-
-  // Private variables and objects
-  ros::NodeHandle nh_;
-  std::string node_name_;
-
   // Parameters
   std::string param_frame_target_;
   int param_clouds_;
   double param_hz_;
+  std::string cloud_in1_topic_;
+  std::string cloud_in2_topic_;
+  std::string cloud_out_topic_;
 
   // Publisher and subscribers
-  ros::Subscriber sub_cloud_in1 = nh_.subscribe("cloud_in1", 1, &PointcloudConcatenate::subCallbackCloudIn1, this);
-  ros::Subscriber sub_cloud_in2 = nh_.subscribe("cloud_in2", 1, &PointcloudConcatenate::subCallbackCloudIn2, this);
-  ros::Subscriber sub_cloud_in3 = nh_.subscribe("cloud_in3", 1, &PointcloudConcatenate::subCallbackCloudIn3, this);
-  ros::Subscriber sub_cloud_in4 = nh_.subscribe("cloud_in4", 1, &PointcloudConcatenate::subCallbackCloudIn4, this);
-  ros::Publisher pub_cloud_out = nh_.advertise<sensor_msgs::PointCloud2>(node_name_ + "/cloud_out", 1);
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_cloud_in1_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_cloud_in2_;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_cloud_out_;
+
+  // Private functions
+  void subCallbackCloudIn1(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+  void subCallbackCloudIn2(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+  void publishPointcloud(sensor_msgs::msg::PointCloud2 &cloud);
 
   // Other
 
-  sensor_msgs::PointCloud2 cloud_in1;
-  sensor_msgs::PointCloud2 cloud_in2;
-  sensor_msgs::PointCloud2 cloud_in3;
-  sensor_msgs::PointCloud2 cloud_in4;
-  sensor_msgs::PointCloud2 cloud_out;
-  bool cloud_in1_received = false;
-  bool cloud_in2_received = false;
-  bool cloud_in3_received = false;
-  bool cloud_in4_received = false;
-  bool cloud_in1_received_recent = false;
-  bool cloud_in2_received_recent = false;
-  bool cloud_in3_received_recent = false;
-  bool cloud_in4_received_recent = false;
+  sensor_msgs::msg::PointCloud2 cloud_in1_;
+  sensor_msgs::msg::PointCloud2 cloud_in2_;
+  sensor_msgs::msg::PointCloud2 cloud_out_;
+  bool cloud_in1_received_ = false;
+  bool cloud_in2_received_ = false;
+  bool cloud_in1_received_recent_ = false;
+  bool cloud_in2_received_recent_ = false;
 
   // Initialization tf2 listener
-  boost::shared_ptr<tf2_ros::Buffer> tfBuffer;
-  boost::shared_ptr<tf2_ros::TransformListener> tfListener;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };
 
-#endif
+#endif // POINTCLOUD_CONCATENATE_HPP

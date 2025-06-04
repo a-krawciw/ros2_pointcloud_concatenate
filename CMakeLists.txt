@@ -1,104 +1,87 @@
-cmake_minimum_required(VERSION 3.0.2)
-### Project name
+cmake_minimum_required(VERSION 3.14)
 project(pointcloud_concatenate)
 
-## Use C++14
+# C++ version
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-
-### Find dependencies
-find_package(catkin REQUIRED COMPONENTS # Must be same as CATKIN_DEPENDS
-        roscpp
-        pcl_ros
-        tf2
-        tf2_ros
-        sensor_msgs
-)
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(pcl_ros REQUIRED)
 find_package(PCL REQUIRED)
-
-## Find system libraries
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
-
-
-############
-## catkin ##
-############
-
-### Define package
-catkin_package(
-        INCLUDE_DIRS 
-                include
-                ${EIGEN3_INCLUDE_DIR} # This is only necessary because Eigen3 sets a non-standard EIGEN3_INCLUDE_DIR variable
-        LIBRARIES 
-                ${PROJECT_NAME}
-        CATKIN_DEPENDS # Must be same as CATKIN_DEPENDS
-                roscpp
-                pcl_ros
-                tf2
-                tf2_ros
-                sensor_msgs
-)
-
-
-
-###########
-## Build ##
-###########
-
-# Specify additional locations of header files
+# Include directories
 include_directories(
-        include
-        ${THIS_PACKAGE_INCLUDE_DIRS}
-        ${catkin_INCLUDE_DIRS}
-        ${EIGEN3_INCLUDE_DIR} # Set manually because Eigen sets a non standard INCLUDE DIR
-        ${Boost_INCLUDE_DIRS} # Set because Boost is an internal dependency, not transitive.
+  include
+  ${EIGEN3_INCLUDE_DIR}
+  ${PCL_INCLUDE_DIRS}
 )
 
-# Declare a cpp library
-add_library(${PROJECT_NAME} 
-        src/${PROJECT_NAME}.cpp
+add_definitions(${PCL_DEFINITIONS})
+
+add_library(${PROJECT_NAME}
+  src/pointcloud_concatenate.cpp
 )
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  sensor_msgs
+  pcl_conversions
+  pcl_ros
+  tf2
+  tf2_ros
+  Eigen3
+)
+
 target_link_libraries(${PROJECT_NAME}
-        ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
-# Declare cpp executables
-add_executable(${PROJECT_NAME}_node 
-        src/${PROJECT_NAME}_node.cpp
+# Declare executable
+add_executable(${PROJECT_NAME}_node
+  src/${PROJECT_NAME}_node.cpp
 )
-target_compile_features(${PROJECT_NAME}_node INTERFACE cxx_std_11)
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  sensor_msgs
+  pcl_conversions
+  pcl_ros
+  tf2
+  tf2_ros
+  Eigen3
+)
+
 target_link_libraries(${PROJECT_NAME}_node
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
+  ${PROJECT_NAME}
+  ${PCL_LIBRARIES}
 )
 
-
-
-#############
-## Install ##
-#############
-
-# Mark executables and/or libraries for installation
-install(
-        TARGETS ${PROJECT_NAME}_node ${PROJECT_NAME}
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# Install targets
+install(TARGETS
+  ${PROJECT_NAME}
+  ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
-# Mark cpp header files for installation
-install(
-        DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-        FILES_MATCHING PATTERN "*.hpp"
+# Install headers
+install(DIRECTORY include/
+  DESTINATION include/
 )
 
-# Mark other files for installation
-install(
-        FILES launch/concat.launch
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+# Install launch files
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
 )
+
+install(DIRECTORY config/
+  DESTINATION share/${PROJECT_NAME}/config
+)
+
+# Ament package
+ament_package()
