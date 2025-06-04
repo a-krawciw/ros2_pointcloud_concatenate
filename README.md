@@ -31,9 +31,9 @@ rosdep install --from-paths src --ignore-src -r -y
 This node is intended to be included as a part of a larger launch file.
 And example launch file is provided.
 
-* `concat.launch`  
+* `pointcloud_concatanate.launch.py`  
   A sample launch file which highlights the necessary parameters and topics.  
-  Launches a node which subscribes to 3 pointclouds, concatenates them and publishes the
+  Launches a node which subscribes to 2 pointclouds, concatenates them and publishes the
   concatenated pointcloud in frame `base_link` at a frequency of 10 Hz.
 
 ### **ROS topics**
@@ -56,7 +56,7 @@ The package uses the following topics, which should be remapped to suit your imp
 * `cloud_in4` - [`sensor_msgs/PointCloud2`]  
   The fourth pointcloud to add to the output.
 
-### **ROS parameters**
+### **ROS2 parameters**
 
 * `clouds` - [integer]  
   Sets the number of pointclouds to concatenate.  
