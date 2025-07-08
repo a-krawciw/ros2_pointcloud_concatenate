@@ -1,5 +1,7 @@
 # Concatenate / combining pointclouds and outputing a single concatenated pointcloud
 
+ROS2 fork of https://github.com/aseligmann/pointcloud_concatenate.
+
 ## `pointcloud_concatenate`
 
 This package provides a node which can be used for concatenating several pointclouds into one.
@@ -38,7 +40,7 @@ And example launch file is provided.
 
 ### **ROS topics**
 
-The package uses the following topics, which should be remapped to suit your implementation.
+The package uses the following topics, which can be changed in ```concatenate_params.yaml```.
 
 #### Publishers
 
@@ -59,7 +61,7 @@ The package uses the following topics, which should be remapped to suit your imp
 ### **ROS2 parameters**
 
 * `clouds` - [integer]  
-  Sets the number of pointclouds to concatenate.  
+  Sets the number of pointclouds to concatenate, max 4.  
   Default value: `2`.
 * `target_frame` - [a valid frame_id]  
   Sets the frame_id which the pointclouds will be collected in before concatenation.  
@@ -70,3 +72,6 @@ The package uses the following topics, which should be remapped to suit your imp
   The input pointclouds should be publishing faster or at an equal rate to this frequency.  
   If an input pointclouds is not received anew before a new update cycle, the previous value will be used.  
   Default value: `10.0`.
+* `cloud_in*_topic` - [string]  
+  Topics at which [`sensor_msgs/PointCloud2`] messages are received.
+  There should be the same amount of topics set as the `clouds`.
