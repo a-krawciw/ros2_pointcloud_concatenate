@@ -6,8 +6,7 @@ ROS2 fork of https://github.com/aseligmann/pointcloud_concatenate.
 
 This package provides a node which can be used for concatenating several pointclouds into one.
 
-Up to 4 pointclouds can be concatenated at once.
-If you need more pointclouds to be concatenated, then you can probably chain the output of this node into a second `pointcloud_concatenate` node.
+The parameter `clouds` determines how many subscriptions are created.
 
 ### **Dependencies**
 
@@ -49,19 +48,14 @@ The package uses the following topics, which can be changed in ```concatenate_pa
 
 #### Subscribers
 
-* `cloud_in1` - [`sensor_msgs/PointCloud2`]  
-  The first pointcloud to add to the output.
-* `cloud_in2` - [`sensor_msgs/PointCloud2`]  
-  The second pointcloud to add to the output.
-* `cloud_in3` - [`sensor_msgs/PointCloud2`]  
-  The third pointcloud to add to the output.
-* `cloud_in4` - [`sensor_msgs/PointCloud2`]  
-  The fourth pointcloud to add to the output.
-
+* `cloud_in{i}` - [`sensor_msgs/PointCloud2`]  
+  Each cloud i starting from 1.
+* `tf` - [`geometry_msgs/TransformStamped`]
+  The TF tree for aligning the point clouds.
 ### **ROS2 parameters**
 
 * `clouds` - [integer]  
-  Sets the number of pointclouds to concatenate, max 4.  
+  Sets the number of pointclouds to concatenate.  
   Default value: `2`.
 * `target_frame` - [a valid frame_id]  
   Sets the frame_id which the pointclouds will be collected in before concatenation.  
@@ -74,4 +68,4 @@ The package uses the following topics, which can be changed in ```concatenate_pa
   Default value: `10.0`.
 * `cloud_in*_topic` - [string]  
   Topics at which [`sensor_msgs/PointCloud2`] messages are received.
-  There should be the same amount of topics set as the `clouds`.
+  There must be the same amount of topics set as the `clouds` otherwise an exception will be thrown.
